@@ -1,0 +1,367 @@
+/* this is a simplier testing version*/ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Manager: Procedural Football RPG</title>
+    <style>
+        :root {
+            --bg: #090c10;
+            --surface: #161b22;
+            --surface-low: #0d1117;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-gold: #f0e68c;
+            --primary: #238636;
+            --accent: #1f6feb;
+            --danger: #f85149;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0; padding: 20px;
+        }
+        .app-layout {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        .card-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .strategy-card {
+            background: linear-gradient(135deg, #1f2937, #111827);
+            border: 2px solid #4b5563;
+            border-radius: 8px;
+            padding: 15px;
+            flex: 1;
+            min-width: 250px;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .strategy-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--text-gold);
+        }
+        .strategy-card h4 { margin: 0 0 8px 0; color: #fff; }
+        .strategy-card p { font-size: 12px; margin: 0; color: #9ca3af; }
+        .panel {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: #8b949e; }
+        .log-box {
+            background: var(--surface-low);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            height: 250px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .btn {
+            background: var(--primary);
+            color: #fff; border: none;
+            padding: 10px 20px; font-weight: bold;
+            border-radius: 6px; cursor: pointer;
+            width: 100%; font-size: 15px;
+        }
+        .btn:hover { background: #2ea043; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .soap-opera-alert {
+            background: #1e293b;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 900px) {
+            .app-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div style="text-align: center; margin-bottom: 20px;">
+    <h2>🏆 Vibe Manager: 6-a-Side Chronicles</h2>
+    <p style="color:#8b949e; margin:0;">Shadow Empire Deck Loop + Crusader Kings Events + Hidden Attributes</p>
+</div>
+
+<div class="soap-opera-alert" id="story-popup">
+    <strong>📰 Week 1 Gossip Column:</strong> Your squad gathers at the local artificial pitch. Nobody knows how good the new players actually are yet. Time to watch them play!
+</div>
+
+<div class="app-layout">
+    <div class="main-column">
+        <h3>🃏 Strategy Hand (Draws Each Turn)</h3>
+        <div class="card-container" id="hand-display"></div>
+
+        <div class="panel">
+            <h3>🏃 Your Squad (FC Vibe)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pos</th>
+                        <th>Name</th>
+                        <th>Personality</th>
+                        <th>Pace</th>
+                        <th>Skill</th>
+                        <th>Temper</th>
+                        <th>Knowledge</th>
+                    </tr>
+                </thead>
+                <tbody id="squad-table"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="panel">
+            <h3>🏟️ Match Centre</h3>
+            <div id="fixture-info" style="font-weight: bold; margin-bottom: 10px; text-align: center;"></div>
+            <div class="log-box" id="match-log">Fixture ready... Play your cards then hit Kick Off!</div>
+            <button class="btn" style="margin-top:15px;" id="match-btn" onclick="playMatchWeek()">⚡ Kick Off Match</button>
+        </div>
+
+        <div class="panel">
+            <h3>📊 League Standings</h3>
+            <table>
+                <thead>
+                    <tr><th>Club</th><th>P</th><th>GD</th><th>Pts</th></tr>
+                </thead>
+                <tbody id="standings-table"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const cardPool = [
+        { title: "📢 Hairdryer Treatment", desc: "Berate a player. Instantly increases their witness knowledge by 25%, but drops their Temperament.", action: 'hairdryer' },
+        { title: "🍻 Pub Sponsorship", desc: "A night out at the local tavern. Boosts squad Skill perceptions, but risks a minor drama event.", action: 'pub' },
+        { title: "🏃 Intense Bleep Test", desc: "Forces fitness drills. Permanently improves true Pace metrics across the board.", action: 'bleep' },
+        { title: "🤫 Scout Network Leak", desc: "Gives you +30% knowledge on one random player immediately.", action: 'leak' }
+    ];
+
+    let myHand = [];
+    let week = 1;
+
+    let mySquad = [
+        { name: "Marcus 'The Flash' Vance", position: "FWD", _pace: 92, _skill: 45, _temperament: 18, knowledge: 15, personality: "Hothead / Egoist" },
+        { name: "Danny 'The Fuse' Miller", position: "MID", _pace: 68, _skill: 85, _temperament: 32, knowledge: 20, personality: "Arrogant Maestro" },
+        { name: "Benny 'The Wall' Cross", position: "DEF", _pace: 52, _skill: 60, _temperament: 88, knowledge: 35, personality: "Stoic Workhorse" },
+        { name: "Charlie 'Glitch' Evans", position: "GK",  _pace: 71, _skill: 50, _temperament: 55, knowledge: 10, personality: "Unpredictable Clown" },
+        { name: "Reggie 'The Tank' Kray", position: "DEF", _pace: 78, _skill: 41, _temperament: 12, knowledge: 5,  personality: "Pure Loose Cannon" },
+        { name: "Sammy 'Silky' Smooth", position: "MID", _pace: 84, _skill: 79, _temperament: 60, knowledge: 25, personality: "Introverted Genius" }
+    ];
+
+    let teams = [
+        { name: "FC Vibe (You)", pts: 0, gd: 0, p: 0 },
+        { name: "Real Mudut", pts: 0, gd: 0, p: 0 },
+        { name: "Inter Pub", pts: 0, gd: 0, p: 0 },
+        { name: "Athletic Alley", pts: 0, gd: 0, p: 0 },
+        { name: "Park Rangers", pts: 0, gd: 0, p: 0 }
+    ];
+
+    function getStatReport(player, statName) {
+        let trueValue = player[`_${statName}`];
+        let errorMargin = Math.max(0, 40 - player.knowledge);
+        let randomError = (Math.random() * errorMargin) - (errorMargin / 2);
+        let perceivedValue = Math.min(100, Math.max(1, trueValue + randomError));
+
+        if (perceivedValue >= 85) return { text: "⚡ World Class", val: perceivedValue };
+        if (perceivedValue >= 70) return { text: "🏃 Very Good", val: perceivedValue };
+        if (perceivedValue >= 50) return { text: "🚶 Average", val: perceivedValue };
+        if (perceivedValue >= 30) return { text: "🐢 Sluggish", val: perceivedValue };
+        return { text: "🛑 Heavy Footed", val: perceivedValue };
+    }
+
+    function initGame() {
+        drawHand();
+        renderSquad();
+        renderStandings();
+        document.getElementById('fixture-info').innerText = `Week ${week}: vs Real Mudut`;
+    }
+
+    function drawHand() {
+        myHand = [];
+        for(let i = 0; i < 3; i++) {
+            myHand.push(cardPool[Math.floor(Math.random() * cardPool.length)]);
+        }
+        renderHand();
+    }
+
+    function renderHand() {
+        const container = document.getElementById('hand-display');
+        container.innerHTML = '';
+        myHand.forEach((card, idx) => {
+            container.innerHTML += `
+                <div class="strategy-card" onclick="playCard(${idx})">
+                    <h4>${card.title}</h4>
+                    <p>${card.desc}</p>
+                    <div style="font-size:10px; color:var(--accent); text-align:right; margin-top:10px;">⚡ ACTIVATE CARD</div>
+                </div>
+            `;
+        });
+    }
+
+    function playCard(idx) {
+        let card = myHand[idx];
+        let alertBox = document.getElementById('story-popup');
+
+        if(card.action === 'hairdryer') {
+            mySquad[0].knowledge = Math.min(100, mySquad[0].knowledge + 25);
+            mySquad[0]._temperament = Math.max(1, mySquad[0]._temperament - 10);
+            alertBox.innerHTML = `<strong>🤬 Locker Room Drama:</strong> You gave ${mySquad[0].name} the hairdryer treatment. You understand his traits better now, but he is completely fuming!`;
+        } else if(card.action === 'bleep') {
+            mySquad.forEach(p => p._pace = Math.min(100, p._pace + 4));
+            alertBox.innerHTML = `<strong>💪 Fitness Boost:</strong> The squad is put through an intense bleep test. Everyone's pace improves!`;
+        } else if(card.action === 'pub') {
+            let affectedPlayers = mySquad.slice(0, 3);
+            affectedPlayers.forEach(p => {
+                p._skill = Math.min(100, p._skill + 6);
+                p.knowledge = Math.min(100, p.knowledge + 10);
+            });
+            alertBox.innerHTML = "🍻 Team Bonding: The squad went to the local pub. Team chemistry spikes, but Reggie 'The Tank' got into an argument with a local bouncer!";
+        } else if (card.action === 'leak') {
+            let luckyPlayer = mySquad[Math.floor(Math.random() * mySquad.length)];
+            luckyPlayer.knowledge = Math.min(100, luckyPlayer.knowledge + 35);
+            alertBox.innerHTML = `<strong>🤫 Data Leak:</strong> An old teammate leaks info on ${luckyPlayer.name}. Scouting report accuracy upgraded!`;
+        }
+        myHand.splice(idx, 1);
+        renderHand();
+        renderSquad();
+    }
+
+    function renderSquad() {
+        const tbody = document.getElementById('squad-table');
+        tbody.innerHTML = '';
+        mySquad.forEach(p => {
+            let paceRep = getStatReport(p, 'pace');
+            let skillRep = getStatReport(p, 'skill');
+            let tempRep = getStatReport(p, 'temperament');
+            tbody.innerHTML += `
+                <tr>
+                    <td>${p.position}</td>
+                    <td>${p.name}</td>
+                    <td>${p.personality}</td>
+                    <td>${paceRep.text}</td>
+                    <td>${skillRep.text}</td>
+                    <td>${tempRep.text}</td>
+                    <td>${p.knowledge}%</td>
+                </tr>
+            `;
+        });
+    }
+
+    function renderStandings() {
+        teams.sort((a, b) => b.pts - a.pts || b.gd - a.gd);
+        const tbody = document.getElementById('standings-table');
+        tbody.innerHTML = '';
+        teams.forEach(t => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${t.name}</td>
+                    <td>${t.p}</td>
+                    <td>${t.gd}</td>
+                    <td><strong>${t.pts}</strong></td>
+                </tr>
+            `;
+        });
+    }
+
+    function playMatchWeek() {
+        const log = document.getElementById('match-log');
+        const matchBtn = document.getElementById('match-btn');
+        matchBtn.disabled = true;
+        log.innerHTML = "⚽ Match Started against Real Mudut...\n";
+        let myGoals = 0;
+        let oppGoals = 0;
+
+        setTimeout(() => {
+            log.innerHTML += "⏱️ 14' " + mySquad[0].name + " bursts forward into open space.\n";
+            mySquad[0].knowledge = Math.min(100, mySquad[0].knowledge + 12);
+            renderSquad();
+        }, 300);
+
+        setTimeout(() => {
+            if (mySquad[4]._temperament < 20) {
+                log.innerHTML += "💥 44' <span style='color:var(--danger)'>CRUSADER KINGS EVENT: " + mySquad[4].name + " snaps due to his low temperament! He flies into a reckless challenge! Ref issues a warning.</span>\n";
+                mySquad[4].knowledge = Math.min(100, mySquad[4].knowledge + 20);
+                renderSquad();
+            } else {
+                log.innerHTML += "⏱️ 44' Clean interception by the midfield block.\n";
+            }
+        }, 700);
+
+        setTimeout(() => {
+            if (mySquad[0]._pace > 80) {
+                myGoals++;
+                log.innerHTML += "⚽ 72' <span style='color:var(--primary)'>GOAL! " + mySquad[0].name + " outpaces everyone cleanly to smash it bottom corner!</span>\n";
+            } else {
+                log.innerHTML += "⏱️ 72' Attack breaks down due to lack of transitional speed.\n";
+            }
+            oppGoals += Math.floor(Math.random() * 2);
+        }, 1100);
+
+        setTimeout(() => {
+            log.innerHTML += "🏁 90' Full Time! Final Score: FC Vibe " + myGoals + " - " + oppGoals + " Real Mudut.\n";
+            let me = teams.find(t => t.name === "FC Vibe (You)");
+            let opp = teams.find(t => t.name === "Real Mudut");
+            me.p++; opp.p++;
+            me.gd += (myGoals - oppGoals);
+            opp.gd += (oppGoals - myGoals);
+            if (myGoals > oppGoals) { me.pts += 3; }
+            else if (myGoals === oppGoals) { me.pts += 1; opp.pts += 1; }
+            else { opp.pts += 3; }
+            simulateRestOfLeague();
+            week++;
+            document.getElementById('fixture-info').innerText = "Week " + week + ": Fixture Generated";
+            drawHand();
+            renderSquad();
+            renderStandings();
+            triggerWeeklySoapOpera();
+            matchBtn.disabled = false;
+        }, 1500);
+    }
+
+    function simulateRestOfLeague() {
+        let targets = teams.filter(t => !t.name.includes("You") && t.name !== "Real Mudut");
+        targets.forEach(t => {
+            t.p++;
+            t.pts += Math.random() > 0.5 ? 3 : 0;
+            t.gd += Math.floor(Math.random() * 3) - 1;
+        });
+    }
+
+    function triggerWeeklySoapOpera() {
+        const popup = document.getElementById('story-popup');
+        const events = [
+            "🎭 Dynamic Rift: " + mySquad[1].name + " was spotted complaining at a pub that the management relies too much on raw pace. Team chemistry tested!",
+            "🏥 Injury Crisis: " + mySquad[2].name + " twisted his ankle stepping out of a delivery van on his day job. His real Pace stat drops temporarily!",
+            "💰 The Poaching Attempt: Inter Pub has offered your star player a custom luxury track jacket to defect. Loyalty metric challenged!"
+        ];
+        popup.innerHTML = events[Math.floor(Math.random() * events.length)];
+    }
+
+    window.onload = initGame;
+</script>
+</body>
+</html>

@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super 6s Football</title>
+<style>
+:root{
+  --bg:#070a0e; --surface:#121820; --surface-2:#0d131a; --surface-low:#0a0f14;
+  --border:#232c38; --border-soft:#1a222c;
+  --text:#c9d6e2; --muted:#7d8da0; --dim:#566373;
+  --gold:#f0c674; --primary:#2ea043; --primary-dim:#1a5c2a;
+  --accent:#3b82f6; --accent-dim:#1e3a5f; --danger:#f05c54; --warn:#e0a92e;
+  --purple:#a371f7;
+}
+*{box-sizing:border-box}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,sans-serif;
+  background:radial-gradient(1200px 600px at 50% -200px,#13202c 0%,var(--bg) 60%);
+  color:var(--text); margin:0; padding:18px; min-height:100vh;
+}
+h1,h2,h3,h4{margin:0}
+.wrap{max-width:1240px;margin:0 auto}
+header{text-align:center;margin-bottom:16px}
+header h1{font-size:26px;letter-spacing:.5px}
+header h1 .you{color:var(--gold)}
+header p{color:var(--muted);margin:4px 0 0;font-size:13px}
+.topbar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.pill{background:var(--surface);border:1px solid var(--border);border-radius:999px;
+  padding:6px 14px;font-size:12px;font-weight:600;color:var(--muted)}
+.pill b{color:var(--text)}
+.btn{background:var(--primary);color:#fff;border:none;padding:10px 18px;font-weight:700;
+  border-radius:8px;cursor:pointer;font-size:14px;transition:.15s;white-space:nowrap}
+.btn:hover{filter:brightness(1.1)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--gold);color:var(--text)}
+.btn.sm{padding:6px 12px;font-size:12px}
+.btn.accent{background:var(--accent)}
+.btn.danger{background:var(--danger)}
+.layout{display:grid;grid-template-columns:1.65fr 1fr;gap:18px;align-items:start}
+.panel{background:linear-gradient(180deg,var(--surface),var(--surface-2));
+  border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.panel h3{font-size:14px;letter-spacing:.3px;display:flex;align-items:center;
+  gap:8px;margin-bottom:12px;color:var(--text)}
+.panel h3 .tag{margin-left:auto;font-size:11px;color:var(--muted);font-weight:600}
+.soap{background:linear-gradient(135deg,#1a2740,#141b2e);border:1px solid var(--accent-dim);
+  border-left:4px solid var(--accent);padding:14px 16px;border-radius:10px;margin-bottom:16px;
+  font-size:13px;line-height:1.55;animation:fadein .4s}
+.soap.choice{border-left-color:var(--gold);border-color:#4a3d1f}
+.soap .choices{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+@keyframes fadein{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.hand{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:6px}
+.scard{background:linear-gradient(160deg,#1e2a3a,#141c27);border:1px solid #2c3a4d;
+  border-radius:12px;padding:13px;cursor:pointer;transition:.18s;position:relative;
+  display:flex;flex-direction:column;min-height:150px;overflow:hidden}
+.scard:hover{transform:translateY(-5px);border-color:var(--gold);
+  box-shadow:0 10px 30px -12px rgba(240,198,116,.4)}
+.scard.spent{opacity:.3;pointer-events:none;filter:grayscale(.7)}
+.scard.played{border-color:var(--gold);pointer-events:none;box-shadow:0 0 0 1px var(--gold),0 10px 30px -12px rgba(240,198,116,.45)}
+.scard.c-bad{border-color:#5a2a2a;background:linear-gradient(160deg,#2a1a1f,#1a1216)}
+.scard.c-bad .ctype{color:var(--danger)}
+.scard .ctype{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  color:var(--accent);margin-bottom:6px}
+.scard.c-fitness .ctype{color:var(--primary)} .scard.c-scout .ctype{color:var(--accent)}
+.scard.c-mind .ctype{color:var(--purple)} .scard.c-tactic .ctype{color:var(--gold)}
+.scard.c-risk .ctype{color:var(--danger)}
+.scard.c-brilliant{border-color:var(--gold);background:linear-gradient(160deg,#2a2440,#1c1730)}
+.scard.c-brilliant .ctype{color:var(--gold)}
+.scard h4{font-size:14px;color:#fff;margin-bottom:6px;line-height:1.2}
+.scard p{font-size:11px;color:var(--muted);margin:0;line-height:1.45;flex:1}
+.scard .play{font-size:10px;font-weight:800;letter-spacing:.5px;color:var(--gold);
+  text-align:right;margin-top:8px}
+.scard .glow{position:absolute;inset:0;background:radial-gradient(120px 60px at 50% -20px,
+  rgba(240,198,116,.14),transparent);pointer-events:none}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 9px;text-align:left;border-bottom:1px solid var(--border-soft)}
+th{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+tr.benched{opacity:.5}
+.pname{font-weight:700;color:var(--text);display:block;line-height:1.15}
+.pname .nick{color:var(--gold);font-weight:800}
+.pmeta{font-size:10px;color:var(--dim)}
+.pos{display:inline-block;min-width:34px;text-align:center;font-size:10px;font-weight:800;
+  padding:3px 4px;border-radius:5px;background:var(--surface-low);border:1px solid var(--border)}
+.pos.FWD{color:#f0776f;border-color:#53302e}.pos.MID{color:#6fb0f0;border-color:#243a52}
+.pos.DEF{color:#6fd98a;border-color:#244a30}.pos.GK{color:#e0c060;border-color:#4a4020}
+.bar{position:relative;height:9px;background:var(--surface-low);border-radius:5px;
+  overflow:hidden;border:1px solid var(--border-soft);min-width:72px}
+.bar .unc{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(
+  45deg,rgba(125,141,160,.25),rgba(125,141,160,.25) 3px,transparent 3px,transparent 6px)}
+.bar .fill{position:absolute;top:0;bottom:0;left:0;border-radius:5px;
+  background:linear-gradient(90deg,var(--primary-dim),var(--primary))}
+.bar.lowk .fill{background:linear-gradient(90deg,#3a3f24,#7d7d35);opacity:.8}
+.statcell{min-width:84px}
+.statlabel{font-size:9px;color:var(--muted);margin-bottom:3px;display:flex;justify-content:space-between}
+.statlabel .q{color:var(--warn)}
+.kbadge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px}
+.kbadge.lo{background:#3a2a1a;color:var(--warn)} .kbadge.mid{background:#1e3350;color:#6fb0f0}
+.kbadge.hi{background:#14331e;color:#5fd97e}
+.chip{font-size:9px;padding:2px 6px;border-radius:5px;background:var(--surface-low);
+  border:1px solid var(--border);color:var(--muted);font-weight:700}
+.chip.inj{color:var(--danger);border-color:#53302e}
+.chip.sus{color:var(--warn);border-color:#4a3d1f}
+.chip.hot{color:var(--primary);border-color:#244a30}
+.chip.cold{color:#6fb0f0;border-color:#243a52}
+.log{background:var(--surface-low);border:1px solid var(--border);border-radius:8px;
+  padding:12px;height:300px;overflow-y:auto;font-family:"SF Mono",ui-monospace,monospace;
+  font-size:12px;line-height:1.7}
+.log .ev{opacity:0;animation:evin .3s forwards}
+@keyframes evin{to{opacity:1}}
+.log .goal{color:var(--primary);font-weight:700}
+.log .oppgoal{color:var(--danger);font-weight:700}
+.log .card-ev{color:var(--warn)}
+.log .reveal{color:var(--gold)}
+.log .ft{color:#fff;font-weight:800;border-top:1px dashed var(--border);
+  margin-top:6px;padding-top:6px;display:block}
+.log .min{color:var(--dim);display:inline-block;min-width:34px}
+.stand td,.stand th{padding:7px 8px;font-size:12px}
+.stand tr.me{background:linear-gradient(90deg,rgba(46,160,67,.14),transparent)}
+.stand tr.me td:first-child{color:var(--gold);font-weight:800}
+.stand .num{text-align:center;color:var(--muted)}
+.stand .pts{text-align:center;font-weight:800;color:var(--text)}
+.stand .form{font-family:monospace;letter-spacing:1px;font-size:11px}
+.fr-W{color:var(--primary)}.fr-D{color:var(--muted)}.fr-L{color:var(--danger)}
+.lineup-hint{font-size:11px;color:var(--muted);margin-bottom:8px}
+.selcol{text-align:center;width:40px}
+.pickbtn{cursor:pointer;user-select:none}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);display:inline-block;transition:.15s}
+.dot.on{background:var(--primary);border-color:var(--primary);box-shadow:0 0 8px rgba(46,160,67,.6)}
+.staff-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;
+  padding:6px 0;border-bottom:1px solid var(--border-soft)}
+.staff-row:last-child{border-bottom:none}
+.staff-q{font-weight:800;font-size:11px;padding:2px 8px;border-radius:999px}
+.sq-hi{background:#14331e;color:#5fd97e}.sq-mid{background:#1e3350;color:#6fb0f0}.sq-lo{background:#3a2a1a;color:var(--warn)}
+.modal-bg{position:fixed;inset:0;background:rgba(3,6,10,.78);backdrop-filter:blur(3px);
+  display:flex;align-items:center;justify-content:center;z-index:50;animation:fadein .2s;padding:20px}
+.modal{background:linear-gradient(180deg,var(--surface),var(--surface-2));border:1px solid var(--border);
+  border-radius:16px;padding:26px;max-width:520px;width:100%;text-align:center;
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.8)}
+.modal h2{font-size:22px;margin-bottom:8px}
+.modal .trophy{font-size:52px;margin-bottom:6px}
+.modal .row{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--surface);
+  border:1px solid var(--gold);color:var(--text);padding:11px 18px;border-radius:10px;font-size:13px;
+  z-index:60;box-shadow:0 10px 30px -10px rgba(0,0,0,.6);animation:fadein .25s}
+.muted{color:var(--muted)} .tiny{font-size:11px}
+.link{cursor:pointer;text-decoration:underline dotted var(--dim);text-underline-offset:3px}
+.link:hover{color:var(--gold)}
+.modal.profile{text-align:left;max-width:600px;max-height:88vh;overflow-y:auto;position:relative}
+.modal.profile .x{position:absolute;top:12px;right:14px}
+.modal.profile h2{font-size:20px;margin-bottom:2px}
+.modal.profile .sub{color:var(--muted);font-size:12px;margin-bottom:14px}
+.modal.profile .grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin:12px 0}
+.modal.profile .kv{font-size:12px;color:var(--muted)} .modal.profile .kv b{color:var(--text);font-weight:600}
+.modal.profile h4{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin:16px 0 6px}
+.modal.profile .quote{font-size:12px;line-height:1.6;color:var(--text);background:var(--surface-low);
+  border-left:3px solid var(--gold);padding:8px 12px;border-radius:6px}
+.pstat{display:grid;grid-template-columns:110px 1fr 40px;align-items:center;gap:10px;font-size:12px;margin:6px 0}
+@media(max-width:960px){.layout{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>⚽ Super 6s <span class="you">Football</span></h1>
+    <p>Draw staff-made cards · Scout hidden talent · Live the soap opera · Win the Sunday League</p>
+    <div class="topbar">
+      <span class="pill">📅 <b id="t-week">Week 1</b></span>
+      <span class="pill">🏟️ <b id="t-season">Season 1</b></span>
+      <span class="pill">⚽ <b id="t-club">—</b></span>
+      <span class="pill">💰 <b id="t-budget">—</b></span>
+      <button class="btn ghost sm" onclick="openNewGame()">New Game</button>
+    </div>
+  </header>
+
+  <div id="soap" class="soap"></div>
+
+  <div class="layout">
+    <div class="col-main">
+      <div class="panel">
+        <h3>🃏 Strategy Hand <span class="tag" id="hand-tag"></span></h3>
+        <div class="hand" id="hand"></div>
+        <p class="tiny muted" style="margin:8px 0 0">Your backroom staff deal up to 3 new cards each week. <b>Pick one to play</b> — the rest are destroyed at full time. A weak or lazy backroom deals more <b>curses</b>, and sometimes you have to play one.</p>
+      </div>
+
+      <div class="panel">
+        <h3>🏃 Your Squad <span class="tag">tick the dots to pick your starting 6</span></h3>
+        <p class="lineup-hint" id="lineup-hint"></p>
+        <table>
+          <thead><tr>
+            <th class="selcol">VI</th><th>Player</th><th>Pos</th>
+            <th class="statcell">Pace</th><th class="statcell">Skill</th><th class="statcell">Temper</th>
+            <th>Scouted</th><th>Status</th>
+          </tr></thead>
+          <tbody id="squad"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-side">
+      <div class="panel">
+        <h3>🏟️ Match Centre <span class="tag" id="fixture-tag"></span></h3>
+        <div id="fixture" style="text-align:center;font-weight:800;margin-bottom:10px;font-size:15px"></div>
+        <div class="log" id="log">Pick your starting six, play your cards, then kick off.</div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn" style="flex:1" id="kick" onclick="kickOff()">⚡ Kick Off</button>
+          <button class="btn ghost sm" id="dossier" onclick="scoutOpposition()">🕵️ Dossier</button>
+          <button class="btn ghost sm" id="skip" onclick="skipMatch()" style="display:none">Skip ⏩</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>👔 Backroom Staff <span class="tag">they shape your cards</span></h3>
+        <div id="staff"></div>
+      </div>
+
+      <div class="panel">
+        <h3>📊 League Table <span class="tag" id="table-tag"></span></h3>
+        <table class="stand">
+          <thead><tr><th>Club</th><th class="num">P</th><th class="num">W</th>
+            <th class="num">D</th><th class="num">L</th><th class="num">GD</th>
+            <th class="pts">Pts</th><th>Form</th></tr></thead>
+          <tbody id="standings"></tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h3>📣 Dressing Room Feed</h3>
+        <div id="feed" class="tiny muted" style="line-height:1.7;max-height:160px;overflow-y:auto"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="cards.js"></script>
+<script src="quirks.js"></script>
+<script src="bonds.js"></script>
+<script>
+"use strict";
+/* ============================================================
+   Super 6s Football — engine. Content lives in data.js & cards.js.
+   ============================================================ */
+
+const RNG={
+  pick:a=>a[Math.floor(Math.random()*a.length)],
+  int:(lo,hi)=>Math.floor(Math.random()*(hi-lo+1))+lo,
+  chance:p=>Math.random()<p,
+  gauss:(m,sd)=>{let u=1-Math.random(),v=Math.random();
+    return m+sd*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+};
+const clamp=(v,lo=1,hi=100)=>Math.max(lo,Math.min(hi,v));
+const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
+
+let G=null;
+const LEAGUE_TEAMS=4;   // keep small for testing
+
+/* ---------- players ---------- */
+function makePlayer(pos){
+  const position=pos||RNG.pick(["FWD","FWD","MID","MID","DEF","DEF","GK"]);
+  const per=RNG.pick(PERSONA);
+  let base={FWD:[78,55,40],MID:[66,74,50],DEF:[60,58,62],GK:[58,60,66]}[position];
+  const p={
+    id:Math.random().toString(36).slice(2,9),
+    first:RNG.pick(FIRST), nick:RNG.pick(NICK), last:RNG.pick(LAST),
+    position, persona:per.t, personaNote:per.note, isStar:false,
+    _pace:clamp(Math.round(RNG.gauss(base[0],13)+(per.pace||0))),
+    _skill:clamp(Math.round(RNG.gauss(base[1],13)+(per.skill||0))),
+    _temperament:clamp(Math.round(RNG.gauss(base[2],16)+(per.temp||0))),
+    _stamina:clamp(Math.round(RNG.gauss(70,12))),
+    knowledge:RNG.int(8,30), morale:RNG.int(55,75), form:0, quirk:null,
+    age:RNG.int(19,41), job:RNG.pick(JOBS), careerApps:0, careerGoals:0, joined:1,
+    trust:0, bonds:{}, memories:[], _tier:2,
+    injury:0, suspended:0, apps:0, goals:0, starting:false,
+    perceived:{}, _stamTax:0
+  };
+  recompute(p);
+  return p;
+}
+/* the position a new arrival should fill: whatever the squad is short of, else an outfielder */
+function positionFor(squad){
+  const short=POSITIONS.filter(pos=>squad.filter(p=>p.position===pos).length<SQUAD_SHAPE[pos]);
+  return RNG.pick(short.length?short:["DEF","MID","FWD"]);
+}
+/* full name — nickname shown ONLY for the squad's star player */
+function pn(p){return p.isStar?`${p.first} '${p.nick}' ${p.last}`:`${p.first} ${p.last}`;}
+/* short display name used in commentary — star gets his nickname, others a surname */
+function dn(p){return p.isStar?p.nick:p.last;}
+function bump(p,key,amt){p[key]=clamp(p[key]+amt);if(key==='knowledge')recompute(p);}
+/* training has diminishing returns: a stat near 100 barely moves */
+function train(p,key,amt){bump(p,key,Math.round(amt*(1-p[key]/120)));}
+
+/* fog of war: cache perceived values, converge toward truth as knowledge rises */
+function recompute(p){
+  ['pace','skill','temperament'].forEach(s=>{
+    const truth=p['_'+s];
+    const margin=Math.max(0,42-p.knowledge*0.42);
+    const err=(Math.random()*margin)-(margin/2);
+    p.perceived[s]={val:clamp(Math.round(truth+err)),margin:Math.round(margin)};
+  });
+}
+/* exactly one Star Player per team: highest true skill+pace */
+function markStars(team){
+  let best=null,bestScore=-1;
+  team.squad.forEach(p=>{p.isStar=false;const s=p._skill+p._pace;if(s>bestScore){bestScore=s;best=p;}});
+  if(best)best.isStar=true;
+}
+
+/* ---------- teams ---------- */
+function makeTeam(name,isMe){
+  const squad=[];
+  POSITIONS.forEach(pos=>{for(let i=0;i<SQUAD_SHAPE[pos];i++) squad.push(makePlayer(pos));});
+  const t={name,isMe,squad,staff:generateStaff(),club:generateClub(),history:[],
+    p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,form:[]};
+  markStars(t);
+  ratingsFor(t);
+  return t;
+}
+/* best available side by the given score, filling XI_SHAPE first then the strongest leftovers */
+function pickXI(squad,score){
+  const avail=squad.filter(p=>!p.injury&&!p.suspended), xi=[];
+  POSITIONS.forEach(pos=>avail.filter(p=>p.position===pos).sort((a,b)=>score(b)-score(a))
+    .slice(0,XI_SHAPE[pos]).forEach(p=>xi.push(p)));
+  avail.filter(p=>!xi.includes(p)).sort((a,b)=>score(b)-score(a)).forEach(p=>{if(xi.length<6)xi.push(p);});
+  return xi;
+}
+/* rival sides: their best six by true ability */
+function trueXI(t){return pickXI(t.squad,p=>p._skill+p._pace);}
+function ratingsFor(t){
+  const xi=trueXI(t);
+  const gk=xi.find(p=>p.position==='GK')||xi.slice().sort((a,b)=>a._skill-b._skill)[0];
+  const outfield=xi.filter(p=>p!==gk);
+  t.attack=teamAttack(outfield);
+  t.defense=teamDefense(outfield,gk);
+}
+/* position matters: attackers drive the attack, defenders the defence, midfielders both */
+const ATK_W={FWD:1.3,MID:1,DEF:0.6}, DEF_W={DEF:1.3,MID:1,FWD:0.5};
+const wavg=(ps,f,w)=>ps.reduce((s,p)=>s+f(p)*(w[p.position]||0.6),0)/ps.reduce((s,p)=>s+(w[p.position]||0.6),0);
+function teamAttack(outfield){return wavg(outfield,p=>p._skill*0.6+p._pace*0.4,ATK_W);}
+function teamDefense(outfield,gk){return wavg(outfield,p=>p._skill*0.45+p._temperament*0.25+p._pace*0.3,DEF_W)*0.7+gk._skill*0.3;}
+
+function buildFixtures(teams){
+  const names=teams.map(t=>t.name), n=names.length, rounds=[], arr=names.slice();
+  for(let leg=0;leg<2;leg++){
+    const rot=arr.slice();
+    for(let r=0;r<n-1;r++){
+      const week=[];
+      for(let i=0;i<n/2;i++){
+        let home=rot[i],away=rot[n-1-i];
+        if(leg===1)[home,away]=[away,home];
+        week.push([home,away]);
+      }
+      rounds.push(week);
+      rot.splice(1,0,rot.pop());
+    }
+  }
+  return rounds;
+}
+
+function newGame(){
+  const pool=shuffle(TEAMNAMES.slice());
+  const myName=pool.pop();
+  const teams=[makeTeam(myName,true)];
+  for(let i=0;i<LEAGUE_TEAMS-1;i++) teams.push(makeTeam(pool.pop(),false));
+  const me=teams[0];
+  autoPickXI(me);
+  ensureBonds(me.squad);
+  G={
+    v:SAVE_VERSION, myName, teams, fixtures:buildFixtures(teams),
+    week:0, season:1, squad:me.squad,
+    hand:[], matchMods:{attack:0,defense:0}, matchState:null,
+    feed:[], pendingStory:null, budget:60, market:[], marketSeason:0, dossierWeek:-1
+  };
+  drawWeeklyCards();
+  save(); renderAll();
+  setSoap(`<strong>📰 Season 1, Week 1 — The Gaffer Arrives.</strong> You've taken charge of <b>${myName}</b>: a ragtag six-a-side of day-jobbers and wannabes. Nobody knows who can actually play. Scout them, train them, survive the drama — and win the ${LEAGUE_TEAMS}-team league.`);
+  pushFeed(`You were appointed manager of ${myName}.`);
+}
+
+function autoPickXI(team){
+  const score=p=>p.perceived.pace.val*0.4+p.perceived.skill.val*0.6;
+  team.squad.forEach(p=>p.starting=false);
+  pickXI(team.squad,score).forEach(p=>p.starting=true);
+  let picked=team.squad.filter(p=>p.starting).length;
+  if(picked<6){
+    team.squad.filter(p=>!p.starting)
+      .sort((a,b)=>(a.suspended?1:0)-(b.suspended?1:0)||a.injury-b.injury||score(b)-score(a))
+      .forEach(p=>{if(picked<6){p.starting=true;picked++;}});
+  }
+}
+
+/* ---------- deck: fresh hand each week, one card to play, the rest are destroyed ---------- */
+function drawWeeklyCards(){
+  const me=teamByName(G.myName);
+  G.hand=rollWeeklyCards(me.staff);
+}
+function playCard(uid){
+  const c=G.hand.find(x=>x.uid===uid);
+  if(!c||c.spent||c.locked) return;
+  if(G.hand.some(x=>x.spent)){toast("You've already played a card this week.");return;}
+  const msg=c.fx(G);
+  c.spent=true;
+  G.hand.forEach(x=>{if(!x.spent)x.locked=true;});
+  ratingsFor(teamByName(G.myName));markStars(teamByName(G.myName));
+  autoBenchUnavailable();
+  setSoap(`<strong>${c.title}</strong><br>${msg}`);
+  pushFeed(c.title.replace(/^[^ ]+ /,'')+": "+stripTags(msg));
+  save(); renderAll();
+}
+
+/* ---------- lineup ---------- */
+function toggleStart(id){
+  const p=G.squad.find(x=>x.id===id);
+  if(!p) return;
+  const healthy=G.squad.filter(x=>!x.injury&&!x.suspended).length;
+  if(!p.starting&&(p.injury||p.suspended)&&healthy>=6){
+    toast(p.injury?"🏥 "+dn(p)+" is injured and can't play.":"🟥 "+dn(p)+" is suspended this week.");return;}
+  const count=G.squad.filter(x=>x.starting).length;
+  if(!p.starting&&count>=6){toast("Only 6 can start. Bench someone first.");return;}
+  p.starting=!p.starting;
+  save(); renderSquad(); renderLineupHint();
+}
+
+/* ============================================================
+   MATCH ENGINE
+   ============================================================ */
+function myFixture(){
+  const week=G.fixtures[G.week];
+  if(!week) return null;
+  return week.find(m=>m[0]===G.myName||m[1]===G.myName);
+}
+function teamByName(n){return G.teams.find(t=>t.name===n);}
+
+function kickOff(){
+  const xi=G.squad.filter(p=>p.starting);
+  if(xi.length!==6){toast("Pick exactly 6 starters ("+xi.length+"/6).");return;}
+  if(MUST_PLAY_CARD&&G.hand.length&&!G.hand.some(c=>c.spent)){toast("Choose one of this week's cards first — you have to play one.");return;}
+  const fx=myFixture();
+  const oppName=fx[0]===G.myName?fx[1]:fx[0];
+  const iAmHome=fx[0]===G.myName;
+  document.getElementById('kick').disabled=true;
+  document.getElementById('skip').style.display='';
+  const result=simulateMyMatch(xi,teamByName(oppName),iAmHome?1.06:0.96,iAmHome);
+  G.matchState=result;
+  playLog(result,()=>finishWeek(result));
+}
+
+function simulateMyMatch(xi,opp,homeAdv,iAmHome){
+  const gkReal=xi.find(p=>p.position==='GK');
+  const gk=gkReal||xi.slice().sort((a,b)=>a._skill-b._skill)[0];
+  const attackers=xi.filter(p=>p!==gk);
+  const hurt=xi.filter(p=>p.injury||p.suspended);
+  G.matchMods.attack-=0.04*hurt.length;G.matchMods.defense-=0.04*hurt.length;
+  const moraleFac=1+(avg(xi.map(p=>p.morale))-60)/250;
+  const attackForm=avg(attackers.map(p=>p.form||0));
+  const defForm=avg(xi.map(p=>p.form||0));
+  const chem=chemistry(xi);
+  const myAttack=teamAttack(attackers)*moraleFac*(1+G.matchMods.attack)*(1+attackForm/120)*(1+chem.factor)*homeAdv;
+  const myDefense=teamDefense(attackers,gk)*(1+G.matchMods.defense)*(1+defForm/160)*(1+chem.factor/2);
+  const oppAttack=opp.attack*(iAmHome?0.95:1.04);
+  const oppDefense=opp.defense;
+  const myXg=Math.max(0.3,(myAttack/Math.max(30,oppDefense))*1.7);
+  const oppXg=Math.max(0.3,(oppAttack/Math.max(30,myDefense))*1.7);
+
+  const oppAttackers=trueXI(opp).filter(p=>p.position!=='GK');
+  const events=[]; let ms=0,os=0;
+  if(!gkReal) events.push({min:1,cls:'card-ev',txt:`🧤 No fit keeper! ${dn(gk)} pulls on the gloves and hopes for the best.`});
+  if(hurt.length) events.push({min:3,cls:'card-ev',txt:`🩹 Short of fit players — ${hurt.map(dn).join(', ')} turn${hurt.length>1?'':'s'} out regardless. A makeshift side.`});
+  chem.feuds.forEach(([a,b])=>events.push({min:2,cls:'card-ev',
+    txt:`⚔️ ${dn(a)} and ${dn(b)} are refusing to pass to each other. ${(a.memories&&a.memories[0])?'Old wounds, by the look of it.':'Frosty out there.'}`}));
+  const minutes=[6,12,19,26,33,41,48,55,62,69,76,83,89];
+  xi.forEach(p=>p.apps++);
+
+  for(const min of minutes){
+    const r=Math.random();
+    const myShot=myXg/minutes.length, oppShot=oppXg/minutes.length;
+    if(RNG.chance(0.07)){
+      const hot=RNG.pick(attackers.filter(p=>p._temperament<42).concat(attackers));
+      if(hot && hot._temperament<35 && RNG.chance(0.6)){
+        bump(hot,'knowledge',9);
+        if(hot._temperament<20 && RNG.chance(0.5)){
+          hot.suspended=1;
+          events.push({min,cls:'card-ev',txt:`🟥 <b>${dn(hot)}</b> completely loses it and sees RED! His temperament is a liability — you've seen it now. Down to the bare bones.`});
+          events.push({min,cls:'reveal',txt:`📈 Scouting report on ${dn(hot)} sharpened (temperament exposed).`});
+          continue;
+        } else {
+          events.push({min,cls:'card-ev',txt:`🟨 ${dn(hot)} flies into a wild challenge — booked. He plays on the edge.`});
+          continue;
+        }
+      }
+    }
+    if(r<myShot){
+      const scorer=weightedAttacker(attackers);
+      bump(scorer,'knowledge',7);
+      if(Math.random()<finishProb(scorer,oppDefense)){
+        ms++; scorer.goals++;
+        events.push({min,cls:'goal',txt:`⚽ <b>GOAL!</b> ${revealVerb(scorer)} ${dn(scorer)} ${goalDesc(scorer)} — ${scoreLine(iAmHome,ms,os)}`});
+        if(scorer.knowledge<60) events.push({min,cls:'reveal',txt:`📈 You're learning ${dn(scorer)}'s real game.`});
+      } else {
+        events.push({min,cls:'',txt:missDesc(scorer)});
+      }
+    } else if(r<myShot+oppShot){
+      const their=weightedAttacker(oppAttackers);
+      bump(their,'knowledge',4);
+      if(Math.random()<finishProb(their,myDefense)){   // same finishing test as your own shots
+        os++;
+        const culprit=RNG.chance(0.5)?gk:RNG.pick(attackers);
+        bump(culprit,'knowledge',6);
+        events.push({min,cls:'oppgoal',txt:`💥 ${dn(their)} scores for ${opp.name}. ${concedeDesc(culprit)} — ${scoreLine(iAmHome,ms,os)}`});
+      } else {
+        events.push({min,cls:'',txt:`${dn(their)} threatens for ${opp.name} but ${dn(gk)} and co. scramble it clear.`});
+      }
+    } else {
+      events.push({min,cls:'',txt:RNG.pick([
+        `Midfield scrap, nobody blinks.`,
+        `${dn(RNG.pick(attackers))} slides a pass that's just cut out.`,
+        `${opp.name} knock it long — comfortable for ${dn(gk)}.`,
+        `A hopeful shout for a penalty waved away.`,
+        `${dn(weightedAttacker(attackers))} wins a corner off a deflection.`
+      ])});
+    }
+  }
+  xi.forEach(p=>{const tax=(p._stamTax||0);p._stamTax=0;
+    p.morale=clamp(p.morale+(ms>os?6:ms===os?-1:-6)-tax*0.5);});
+  return {oppName:opp.name,iAmHome,ms,os,events,xi};
+}
+
+/* who ends up on the end of a chance: attackers most, defenders rarely */
+const SHOOT_W={FWD:1.6,MID:1,DEF:0.4,GK:0.05};
+function weightedAttacker(att){
+  const w=att.map(p=>Math.pow((p._skill+p._pace)/2,2)*(SHOOT_W[p.position]||1));
+  let r=Math.random()*w.reduce((a,b)=>a+b,0);
+  for(let i=0;i<att.length;i++){if((r-=w[i])<=0)return att[i];}
+  return att[att.length-1];
+}
+function finishProb(p,oppDef){return clamp(((p._skill+(p.form||0))*0.7+p._pace*0.3)/(oppDef*1.25),0.05,0.92);}
+function revealVerb(p){return p._pace>80?"Lightning-quick":p._skill>80?"Classy":p._pace<45?"Somehow,":"";}
+function goalDesc(p){
+  if(p._pace>82)return "burns the last man and smashes it home";
+  if(p._skill>82)return "dances through and finishes with the outside of the boot";
+  if(p._skill<45)return "bundles in a scruffy one off his shin — they all count";
+  return "arrives to tuck it away";
+}
+function missDesc(p){
+  if(p._skill<45)return `${dn(p)} skies it into the car park — not a natural finisher.`;
+  if(p._pace>80)return `${dn(p)} races clear but drags it wide. The pace is frightening though.`;
+  return `${dn(p)} forces a smart save.`;
+}
+function concedeDesc(p){
+  if(p.position==='GK')return p._skill<55?`${dn(p)} should've kept that out`:`nothing ${dn(p)} could do`;
+  return `${dn(p)} got turned too easily`;
+}
+function scoreLine(iAmHome,ms,os){return iAmHome?`${G.myName} ${ms}-${os}`:`${ms}-${os} ${G.myName}`;}
+
+/* animated log reveal */
+let logTimer=null;
+function playLog(result,done){
+  const log=document.getElementById('log');
+  log.innerHTML=`<span class="min"></span>⚽ Kick off vs <b>${result.oppName}</b>...`;
+  let i=0;
+  const step=()=>{
+    if(i>=result.events.length){
+      const line=document.createElement('span');line.className='ft';
+      const res=result.ms>result.os?'WIN 🎉':result.ms===result.os?'DRAW':'LOSS';
+      line.innerHTML=`🏁 FULL TIME — ${scoreLine(result.iAmHome,result.ms,result.os)} · ${res}`;
+      line.style.animation='evin .3s forwards';
+      log.appendChild(line);log.scrollTop=log.scrollHeight;logTimer=null;done();return;
+    }
+    const e=result.events[i++];
+    const div=document.createElement('div');div.className='ev '+(e.cls||'');
+    div.innerHTML=`<span class="min">${e.min}'</span>${e.txt}`;
+    log.appendChild(div);log.scrollTop=log.scrollHeight;renderSquad();
+    logTimer=setTimeout(step,250);
+  };
+  logTimer=setTimeout(step,300);
+}
+function skipMatch(){
+  if(!logTimer||!G.matchState)return;
+  clearTimeout(logTimer);logTimer=null;
+  const r=G.matchState,log=document.getElementById('log');log.innerHTML='';
+  r.events.forEach(e=>{const d=document.createElement('div');d.className='ev '+(e.cls||'');
+    d.style.animation='none';d.style.opacity=1;
+    d.innerHTML=`<span class="min">${e.min}'</span>${e.txt}`;log.appendChild(d);});
+  const line=document.createElement('span');line.className='ft';line.style.opacity=1;
+  const res=r.ms>r.os?'WIN 🎉':r.ms===r.os?'DRAW':'LOSS';
+  line.innerHTML=`🏁 FULL TIME — ${scoreLine(r.iAmHome,r.ms,r.os)} · ${res}`;
+  log.appendChild(line);log.scrollTop=log.scrollHeight;finishWeek(r);
+}
+
+/* ---------- results + advance ---------- */
+function finishWeek(result){
+  document.getElementById('skip').style.display='none';
+  applyResult(teamByName(G.myName),teamByName(result.oppName),result.ms,result.os);
+  if(result.ms>result.os) winTogether(result.xi);
+  G.budget+=5+(result.ms>result.os?5:0);
+  G.fixtures[G.week].forEach(m=>{
+    if(m[0]===G.myName||m[1]===G.myName)return;
+    const h=teamByName(m[0]),a=teamByName(m[1]);
+    applyResult(h,a,simAiGoals(h.attack*1.05,a.defense),simAiGoals(a.attack,h.defense));
+  });
+  const me=teamByName(G.myName);
+  const physio=me.staff.physio.quality;
+  G.squad.forEach(p=>{
+    if(p.injury>0){p.injury--;if(physio>75&&p.injury>0&&RNG.chance(.3))p.injury--;}
+    if(p.suspended>0)p.suspended--;
+  });
+  G.matchMods={attack:0,defense:0};
+  G.week++;
+  if(G.week>=G.fixtures.length){endSeason();return;}
+  drawWeeklyCards();
+  triggerStory();
+  const qmsgs=tickQuirks(G);
+  const rmsgs=weeklyRelationships(G);
+  qmsgs.concat(rmsgs).forEach(m=>pushFeed(stripTags(m)));
+  if(qmsgs.length && !G.pendingStory) setSoap(`<strong>🎭 Personality Watch:</strong> ${qmsgs[0]}`);
+  autoBenchUnavailable();
+  save(); renderAll();
+  document.getElementById('kick').disabled=false;
+}
+function simAiGoals(att,def){
+  const xg=Math.max(0.2,(att/Math.max(30,def))*1.6);
+  let g=0;for(let i=0;i<4;i++)if(Math.random()<xg/4)g++;return g;
+}
+function applyResult(home,away,hg,ag){
+  home.p++;away.p++;home.gf+=hg;home.ga+=ag;away.gf+=ag;away.ga+=hg;
+  if(hg>ag){home.w++;away.l++;home.pts+=3;home.form.push('W');away.form.push('L');}
+  else if(hg<ag){away.w++;home.l++;away.pts+=3;away.form.push('W');home.form.push('L');}
+  else{home.d++;away.d++;home.pts++;away.pts++;home.form.push('D');away.form.push('D');}
+  [home,away].forEach(t=>{if(t.form.length>5)t.form=t.form.slice(-5);});
+}
+function autoBenchUnavailable(){
+  G.squad.forEach(p=>{if((p.injury||p.suspended)&&p.starting)p.starting=false;});
+  if(G.squad.filter(p=>p.starting).length<6) autoPickXI(teamByName(G.myName));
+}
+
+/* ============================================================
+   SOAP OPERA
+   ============================================================ */
+const STORIES=[
+  g=>{const p=RNG.pick(g.squad);return{
+    text:`🎭 <b>The Ego Clash.</b> ${pn(p)} was spotted ranting at the chippy that you "don't rate him". Morale wobbling.`,
+    choices:[
+      {label:"Arm round the shoulder",fx:()=>{p.morale=clamp(p.morale+15);bump(p,'knowledge',10);adjustTrust(p,15,`You put an arm round him when he was down.`,'backed');return `${dn(p)} feels valued again. +Morale, +Trust, and you learned a bit about him.`;}},
+      {label:"Tell him to prove it",fx:()=>{if(RNG.chance(.5)){bump(p,'_skill',5);p.morale=clamp(p.morale+6);adjustTrust(p,10,`You challenged him to prove you wrong — and he did.`,'proved');return `${dn(p)} responds like a champion. +Skill, +Trust.`;}p.morale=clamp(p.morale-12);adjustTrust(p,-12,`You told him to prove himself and it stung.`,'scolded');return `${dn(p)} sulks for a week. Morale and trust drop.`;}}
+    ]};},
+  g=>{const p=RNG.pick(g.squad);const rival=RNG.pick(g.teams.filter(t=>!t.isMe));
+    const loyal=p.trust>=40;return{
+    text:loyal
+      ?`💰 <b>Poaching Attempt.</b> ${rival.name} offered ${pn(p)} a custom tracksuit and "exposure" to defect. He laughed in their face — but wants you to know about it.`
+      :`💰 <b>Poaching Attempt.</b> ${rival.name} offered ${pn(p)} a custom tracksuit and "exposure" to defect. Loyalty tested.`,
+    choices:[
+      {label:loyal?"Thank him for his loyalty":"Match the offer",fx:()=>{p.morale=clamp(p.morale+(loyal?10:18));adjustTrust(p,loyal?6:8,loyal?`You thanked him for turning ${rival.name} down.`:`You matched ${rival.name}'s offer to keep him.`,'valued');return loyal?`${dn(p)} beams. Another reason to run through walls for you.`:`${dn(p)} stays, loyalty bought with a tracksuit of your own.`;}},
+      {label:"Call their bluff",fx:()=>{if(loyal||RNG.chance(.65)){p.morale=clamp(p.morale+8);adjustTrust(p,5);return `${dn(p)} wasn't going anywhere. Trust deepened.`;}p.morale=clamp(p.morale-20);adjustTrust(p,-15,`You called ${rival.name}'s bluff and he felt undervalued.`,'humiliated');return `Awkward. ${dn(p)} is now sulking about ${rival.name} — and about you.`;}}
+    ]};},
+  g=>{const p=RNG.pick(g.squad.filter(x=>x.position!=='GK'));return{
+    text:`🏥 <b>Fitness Crisis.</b> ${pn(p)} tweaked his ankle climbing out of his delivery van. He says he's "fine".`,
+    choices:[
+      {label:"Rest him a week",fx:()=>{p.injury=1;p.morale=clamp(p.morale+4);adjustTrust(p,10,`You rested him when he was hurt instead of risking him.`,'cared');return `${dn(p)} sits out to recover properly. Smart management — and he noticed.`;}},
+      {label:"Play through it",fx:()=>{if(RNG.chance(.45)){p.injury=2;adjustTrust(p,-15,`You played him through an injury and it went badly.`,'scolded');return `⚠️ It goes mid-match. ${dn(p)} now out 2 weeks, and he blames you.`;}bump(p,'_temperament',6);return `${dn(p)} grits through it — gains some steel. +Temperament.`;}}
+    ]};},
+  g=>{const p=RNG.pick(g.squad);return{
+    text:`🌟 <b>Breakout Rumour.</b> Word is ${pn(p)} has been tearing up the midweek 6-a-side kickabouts. Is there a hidden gem here?`,
+    choices:[
+      {label:"Send the scout",fx:()=>{bump(p,'knowledge',35);return `Full report pulled on ${dn(p)}. The fog lifts.`;}},
+      {label:"Ignore the hype",fx:()=>{return `You stay focused on the league. ${dn(p)} shrugs.`;}}
+    ]};},
+  g=>{return{
+    text:`🍻 <b>Team Bonding.</b> The lads want a night out before the big one. Could gel them — or wreck them.`,
+    choices:[
+      {label:"Sanction it",fx:()=>{g.squad.forEach(x=>{x.morale=clamp(x.morale+10);adjustTrust(x,3);});for(let i=0;i<g.squad.length;i++)for(let j=i+1;j<g.squad.length;j++)adjustBond(g.squad[i],g.squad[j],4);if(RNG.chance(.3)){const v=RNG.pick(g.squad);v.injury=1;return `Great bonding! ...but ${dn(v)} 'fell over a bollard' and is out a week.`;}return `The squad is buzzing and tight-knit. Morale, trust and friendships all up.`;}},
+      {label:"Early night instead",fx:()=>{g.squad.forEach(x=>bump(x,'_stamina',3));return `Professional. Legs feel fresher this week.`;}}
+    ]};},
+];
+function triggerStory(){
+  const rel=RNG.chance(0.6)?pickRelationshipStory(G):null;
+  if(rel){
+    G.pendingStory=rel;
+  } else if(RNG.chance(0.75)){
+    G.pendingStory=RNG.pick(STORIES)(G);
+  } else {
+    G.pendingStory=null;
+    setSoap(`<strong>📰 Week ${G.week+1} Gossip:</strong> ${RNG.pick([
+      "Quiet week at the training ground. Suspiciously quiet.",
+      "The groundsman found three traffic cones on the pitch again.",
+      "Someone keeps nicking the match balls. Morale unaffected.",
+      "A local reporter called your tactics 'brave'. You're not sure that's a compliment."
+    ])}`);
+  }
+}
+function renderStory(){
+  if(!G.pendingStory)return;
+  const s=G.pendingStory, soap=document.getElementById('soap');
+  soap.className='soap choice';
+  soap.innerHTML=`${s.text}<div class="choices">`+
+    s.choices.map((c,i)=>`<button class="btn sm ${i===0?'':'ghost'}" onclick="resolveStory(${i})">${c.label}</button>`).join('')+`</div>`;
+}
+function resolveStory(i){
+  const s=G.pendingStory;if(!s)return;
+  const msg=s.choices[i].fx();
+  G.pendingStory=null;
+  ratingsFor(teamByName(G.myName));markStars(teamByName(G.myName));
+  autoBenchUnavailable();
+  setSoap(`<strong>Decision made.</strong><br>${msg}`);
+  pushFeed(stripTags(msg));
+  save(); renderAll();
+}
+
+/* ---------- season end ---------- */
+function endSeason(){
+  if(G.recordedSeason!==G.season){
+    const sorted=G.teams.slice().sort(cmpTable);
+    G.teams.forEach(t=>t.history.push({season:G.season,pos:sorted.indexOf(t)+1,pts:t.pts,gd:t.gf-t.ga}));
+    G.recordedSeason=G.season;
+  }
+  showSeasonSummary();
+}
+function showSeasonSummary(){
+  const sorted=G.teams.slice().sort(cmpTable);
+  const pos=sorted.findIndex(t=>t.isMe)+1;
+  const champ=sorted[0], won=champ.isMe;
+  showModal(`
+    <div class="trophy">${won?'🏆':pos<=2?'🥈':'⚽'}</div>
+    <h2>${won?'CHAMPIONS!':`${ord(pos)} Place`}</h2>
+    <p class="muted">Season ${G.season} is over. ${won
+      ? `${G.myName} are the Sunday League champions! Pub legends forever.`
+      : `${champ.name} took the title. You finished ${ord(pos)} of ${G.teams.length}.`}</p>
+    <p class="tiny muted" style="margin-top:10px">Top scorer: ${topScorer()}</p>
+    <div class="row">
+      <button class="btn ghost" onclick="openTransferWindow()">🔁 Transfer window</button>
+      <button class="btn" onclick="nextSeason()">➡️ Start Season ${G.season+1}</button>
+      <button class="btn ghost" onclick="openNewGame()">New Game</button>
+    </div>`);
+}
+/* season-end development: young players improve, veterans fade, zero-mean across the league */
+function devPlayer(p){
+  const drift=p.age<24?2:p.age>31?-2:0;
+  bump(p,'_skill',Math.round(RNG.gauss(drift,2)));
+  bump(p,'_pace',Math.round(RNG.gauss(p.age>28?drift-1:drift,2.5)));
+  bump(p,'_temperament',Math.round(RNG.gauss(0,1.5)));
+  p.age++;
+}
+function nextSeason(){
+  closeModal();
+  G.teams.forEach(t=>t.squad.forEach(p=>{p.careerApps+=p.apps;p.careerGoals+=p.goals;}));
+  G.teams.forEach(t=>{t.p=t.w=t.d=t.l=t.gf=t.ga=t.pts=0;t.form=[];});
+  G.squad.forEach(p=>{p.goals=0;p.apps=0;p.injury=0;p.suspended=0;p.quirk=null;p.form=0;p.morale=65;});
+  G.teams.forEach(t=>t.squad.forEach(devPlayer));
+  G.teams.forEach(t=>t.squad.forEach((p,i)=>{
+    if(p.age<35) return;
+    const kid=makePlayer(p.position); kid.age=RNG.int(18,21); kid.knowledge=5;
+    recompute(kid); t.squad[i]=kid;
+    if(t.isMe) pushFeed(`🪦 ${pn(p)} hangs up his boots after a long career. ${pn(kid)} (${kid.age}) comes through the youth ranks to replace him.`);
+  }));
+  G.teams.forEach(markStars);G.teams.forEach(ratingsFor);
+  ensureBonds(G.squad);
+  seasonRelationships(G).forEach(m=>pushFeed(stripTags(m)));
+  G.season++;G.week=0;G.hand=[];
+  G.fixtures=buildFixtures(G.teams);
+  drawWeeklyCards();
+  setSoap(`<strong>📰 Season ${G.season} kicks off.</strong> Fresh fixtures, same dreams. Your scouting knowledge carries over — you know this squad now.`);
+  autoPickXI(teamByName(G.myName));
+  save(); renderAll();
+  document.getElementById('kick').disabled=false;
+}
+function topScorer(){
+  const s=G.squad.slice().sort((a,b)=>b.goals-a.goals)[0];
+  return s&&s.goals>0?`${pn(s)} (${s.goals})`:'nobody worth mentioning';
+}
+
+/* ---------- rendering ---------- */
+function renderAll(){renderTop();renderHand();renderSquad();renderStaff();
+  renderStandings();renderFixture();renderFeed();renderLineupHint();
+  if(G.pendingStory)renderStory();}
+function renderTop(){
+  document.getElementById('t-week').textContent=`Week ${Math.min(G.week+1,G.fixtures.length)}/${G.fixtures.length}`;
+  document.getElementById('t-season').textContent=`Season ${G.season}`;
+  document.getElementById('t-club').textContent=G.myName;
+  document.getElementById('t-budget').textContent=`£${G.budget}k`;
+}
+function renderHand(){
+  const h=document.getElementById('hand');
+  if(!G.hand.length){h.innerHTML='<p class="tiny muted">Your backroom team came up empty this week. No card to play.</p>';}
+  else h.innerHTML=G.hand.map(c=>`
+    <div class="scard c-${c.category} ${c.spent?'played':''} ${c.locked?'spent':''}" onclick="playCard('${c.uid}')">
+      <div class="glow"></div>
+      <div class="ctype">${c.tier==='brilliant'?'★ brilliant':c.tier==='bad'?'☠ curse':c.category}${c.oneMatch?' · this match':''}</div>
+      <h4>${c.title}</h4><p>${c.desc}</p>
+      <div class="play">${c.spent?'✓ PLAYED':c.locked?'✗ DESTROYED':'⚡ PLAY THIS ONE'}</div>
+    </div>`).join('');
+  const played=G.hand.some(c=>c.spent);
+  document.getElementById('hand-tag').textContent=!G.hand.length?'no cards':played?'card played':
+    `pick 1 of ${G.hand.length}${MUST_PLAY_CARD?' (required)':''}`;
+}
+function statCell(p,stat){
+  const per=p.perceived[stat], low=p.knowledge<40;
+  const uncLeft=clamp(per.val-per.margin/2,0,100), uncW=Math.min(100-uncLeft,per.margin);
+  const q=per.margin>22?'???':per.margin>10?'?':'';
+  return `<td class="statcell">
+    <div class="statlabel"><span>${label(stat,per.val)}</span><span class="q">${q}</span></div>
+    <div class="bar ${low?'lowk':''}">
+      ${per.margin>6?`<div class="unc" style="left:${uncLeft}%;width:${uncW}%"></div>`:''}
+      <div class="fill" style="width:${per.val}%"></div>
+    </div></td>`;
+}
+function label(stat,v){
+  const sets={
+    pace:["🛑 Immobile","🐢 Sluggish","🚶 Steady","🏃 Rapid","⚡ Blistering"],
+    skill:["🪵 Woodwork","😬 Raw","🧩 Tidy","🎩 Classy","🪄 Magical"],
+    temperament:["🌋 Volatile","😤 Fiery","😐 Level","🧘 Composed","🗿 Ice-cold"]
+  };
+  const s=sets[stat];
+  return s[v>=85?4:v>=68?3:v>=50?2:v>=32?1:0];
+}
+function kbadge(k){return `<span class="kbadge ${k>=70?'hi':k>=40?'mid':'lo'}">${k}%</span>`;}
+function statusChips(p){
+  const c=[];
+  if(p.injury)c.push(`<span class="chip inj">🏥 ${p.injury}w</span>`);
+  if(p.suspended)c.push(`<span class="chip sus">🟥 susp</span>`);
+  if(p.morale>=78)c.push(`<span class="chip hot">🔥 buzzing</span>`);
+  else if(p.morale<=40)c.push(`<span class="chip cold">🥶 low</span>`);
+  if(p.form>=6)c.push(`<span class="chip hot">📈 flying</span>`);
+  else if(p.form<=-6)c.push(`<span class="chip cold">📉 off it</span>`);
+  if(p.trust>=50)c.push(`<span class="chip hot">🤝 loyal</span>`);
+  else if(p.trust<=-40)c.push(`<span class="chip cold">😡 resentful</span>`);
+  if(G.squad.some(x=>x.id!==p.id&&bondOf(p,x)<=-40))c.push(`<span class="chip sus">⚔️ feud</span>`);
+  if(p.goals>0)c.push(`<span class="chip">⚽${p.goals}</span>`);
+  return c.join(' ')||'<span class="tiny muted">—</span>';
+}
+function renderSquad(){
+  const order={GK:0,DEF:1,MID:2,FWD:3};
+  const rows=G.squad.slice().sort((a,b)=>order[a.position]-order[b.position]);
+  document.getElementById('squad').innerHTML=rows.map(p=>`
+    <tr class="${p.starting?'':'benched'}">
+      <td class="selcol pickbtn" onclick="toggleStart('${p.id}')"><span class="dot ${p.starting?'on':''}"></span></td>
+      <td><span class="pname link" onclick="openPlayer('${p.id}')">${p.first} ${p.last}${p.isStar?` '<span class="nick">${p.nick}</span>' ⭐`:''}</span>
+        <span class="pmeta">${p.persona} · ${p.personaNote}${p.quirk?` · <span style="color:var(--purple)">${quirkLabel(p)}</span>`:''}</span></td>
+      <td><span class="pos ${p.position}">${p.position}</span></td>
+      ${statCell(p,'pace')}${statCell(p,'skill')}${statCell(p,'temperament')}
+      <td>${kbadge(p.knowledge)}</td><td>${statusChips(p)}</td>
+    </tr>`).join('');
+}
+function renderStaff(){
+  const me=teamByName(G.myName);
+  const q=v=>v>=72?'sq-hi':v>=48?'sq-mid':'sq-lo';
+  document.getElementById('staff').innerHTML=STAFF_ROLES.map(r=>{
+    const s=me.staff[r.key];
+    return `<div class="staff-row">
+      <span>${s.icon} <b class="link" onclick="openStaff('${r.key}')">${s.name}</b> <span class="tiny muted">— ${s.label} · ${s.personality}${s.lazy?' 🍺':''}</span></span>
+      <span class="staff-q ${q(s.quality)}">${s.quality}</span></div>`;
+  }).join('');
+}
+function renderLineupHint(){
+  const xi=G.squad.filter(p=>p.starting), n=xi.length;
+  const cnt=pos=>xi.filter(p=>p.position===pos).length;
+  const shape=n===6&&cnt('GK')===1?`${cnt('DEF')}-${cnt('MID')}-${cnt('FWD')}`:'';
+  const warn=n===6&&cnt('GK')!==1?` · <b style="color:var(--warn)">${cnt('GK')?'more than one keeper':'no keeper!'}</b>`:'';
+  document.getElementById('lineup-hint').innerHTML=
+    `Starting VI: <b style="color:${n===6?'var(--primary)':'var(--warn)'}">${n}/6</b> selected${shape?` · formation <b>${shape}</b>`:''}${warn} · ${G.squad.filter(p=>p.injury||p.suspended).length} unavailable. Low scouting = fuzzy bars; watch them play to reveal the truth.`;
+}
+function cmpTable(a,b){return b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf;}
+function renderStandings(){
+  document.getElementById('standings').innerHTML=G.teams.slice().sort(cmpTable).map(t=>`
+    <tr class="${t.isMe?'me':''}">
+      <td><span class="link" onclick="openClub('${t.name.replace(/'/g,"\\'")}')">${t.name}</span></td><td class="num">${t.p}</td><td class="num">${t.w}</td>
+      <td class="num">${t.d}</td><td class="num">${t.l}</td>
+      <td class="num">${(t.gf-t.ga>0?'+':'')+(t.gf-t.ga)}</td>
+      <td class="pts">${t.pts}</td>
+      <td class="form">${t.form.slice(-5).map(f=>`<span class="fr-${f}">${f}</span>`).join('')||'<span class="muted">—</span>'}</td>
+    </tr>`).join('');
+  document.getElementById('table-tag').textContent=`${G.teams.length} clubs`;
+}
+function renderFixture(){
+  document.getElementById('dossier').disabled=G.dossierWeek===G.week;
+  const fx=myFixture();
+  if(!fx){
+    document.getElementById('fixture').innerHTML=`Season complete · <span class="link" onclick="showSeasonSummary()">open season summary</span>`;
+    document.getElementById('kick').disabled=true;
+    return;
+  }
+  const opp=fx[0]===G.myName?fx[1]:fx[0];
+  document.getElementById('fixture').innerHTML=`${G.myName} <span class="muted">vs</span> ${opp} <span class="tiny muted">${fx[0]===G.myName?'(H)':'(A)'}</span>`;
+  document.getElementById('fixture-tag').textContent=`Week ${G.week+1}`;
+}
+function renderFeed(){
+  document.getElementById('feed').innerHTML=G.feed.slice(0,18).map(f=>`<div>• ${f}</div>`).join('')||'<div>Nothing yet.</div>';
+}
+
+/* ---------- profiles (player / staff / club) ---------- */
+function findPlayer(id){for(const t of G.teams){const p=t.squad.find(x=>x.id===id);if(p)return {p,t};}return null;}
+function showProfile(html){closeModal();modalEl=document.createElement('div');modalEl.className='modal-bg';
+  modalEl.onclick=e=>{if(e.target===modalEl)closeModal();};
+  modalEl.innerHTML=`<div class="modal profile"><button class="btn ghost sm x" onclick="closeModal()">✕</button>${html}</div>`;
+  document.body.appendChild(modalEl);}
+function pstat(p,stat,name){
+  const per=p.perceived[stat], low=p.knowledge<40;
+  const uncLeft=clamp(per.val-per.margin/2,0,100), uncW=Math.min(100-uncLeft,per.margin);
+  return `<div class="pstat"><span>${name}</span>
+    <div class="bar ${low?'lowk':''}">${per.margin>6?`<div class="unc" style="left:${uncLeft}%;width:${uncW}%"></div>`:''}<div class="fill" style="width:${per.val}%"></div></div>
+    <span class="tiny muted">${per.margin>22?'???':per.margin>10?'?':'✓'}</span></div>
+    <div class="tiny muted" style="margin:-4px 0 4px 120px">${label(stat,per.val)}</div>`;
+}
+function openPlayer(id){
+  const f=findPlayer(id);if(!f)return;const {p,t}=f;
+  const mine=t.isMe;
+  const q=p.quirk?QUIRK_BY_KEY[p.quirk.key]:null;
+  const verdict=p.knowledge>=70?'You know this player well.':p.knowledge>=40?'Getting a read on him.':'Barely scouted — treat the bars with suspicion.';
+  showProfile(`
+    <h2>${p.first} ${p.last}${p.isStar?` <span style="color:var(--gold)">'${p.nick}' ⭐</span>`:''}</h2>
+    <div class="sub"><span class="pos ${p.position}">${p.position}</span> · <span class="link" onclick="openClub('${t.name.replace(/'/g,"\\'")}')">${t.name}</span> · ${p.persona}</div>
+    <div class="quote">${p.personaNote}. By day, a ${p.job}. Age ${p.age}.</div>
+    <h4>Scouting report — ${p.knowledge}% known</h4>
+    <div class="tiny muted" style="margin-bottom:6px">${verdict}</div>
+    ${pstat(p,'pace','Pace')}${pstat(p,'skill','Skill')}${pstat(p,'temperament','Temperament')}
+    <h4>Right now</h4>
+    <div class="grid2">
+      <div class="kv">Morale <b>${p.morale>=78?'🔥 buzzing':p.morale<=40?'🥶 low':'steady'}</b></div>
+      <div class="kv">Form <b>${p.form>=6?'📈 flying':p.form<=-6?'📉 off it':'normal'}</b></div>
+      <div class="kv">Fitness <b>${p.injury?`🏥 out ${p.injury}w`:p.suspended?'🟥 suspended':'available'}</b></div>
+      <div class="kv">Quirk <b>${q?`${q.icon} ${q.short} (${p.quirk.weeks}w)`:'—'}</b></div>
+    </div>
+    <h4>Record</h4>
+    <div class="grid2">
+      <div class="kv">This season <b>${p.apps} apps · ${p.goals} goals</b></div>
+      <div class="kv">Career <b>${p.careerApps+p.apps} apps · ${p.careerGoals+p.goals} goals</b></div>
+    </div>
+    ${mine?relationshipHtml(p,G.squad):'<div class="tiny muted">Rival players are mostly a mystery — play them to learn more.</div>'}`);
+}
+function openStaff(key,teamName){
+  const t=teamByName(teamName||G.myName);const s=t.staff[key];if(!s)return;
+  const effect={assistant:"Sets how many cards you draw each week and the odds of a brilliant one.",
+    fitness:"Weights how often fitness (training) cards appear.",
+    scout:"Weights how often scouting cards appear.",
+    physio:"A strong physio speeds up injury recovery."}[key];
+  showProfile(`
+    <h2>${s.icon} ${s.name}</h2>
+    <div class="sub">${s.label} · <span class="link" onclick="openClub('${t.name.replace(/'/g,"\\'")}')">${t.name}</span> · Age ${s.age}</div>
+    <div class="quote">${s.story}</div>
+    <div class="grid2">
+      <div class="kv">Ability <b>${s.quality}/100</b></div>
+      <div class="kv">Style <b>${s.personality}</b></div>
+      <div class="kv">Work ethic <b>${s.lazy?'🍺 prone to slacking':'reliable'}</b></div>
+      <div class="kv">Reliability <b>${Math.round(s.reliability*100)}%</b></div>
+    </div>
+    <h4>What they do for you</h4><div class="tiny muted">${effect}</div>`);
+}
+function openClub(name){
+  const t=teamByName(name);if(!t)return;
+  const c=t.club, sorted=G.teams.slice().sort(cmpTable), pos=sorted.indexOf(t)+1;
+  const titles=t.history.filter(h=>h.pos===1).length;
+  const hist=t.history.length?t.history.map(h=>`<div class="kv">Season ${h.season} <b>${ord(h.pos)} · ${h.pts} pts (${h.gd>0?'+':''}${h.gd} GD)</b></div>`).join('')
+    :'<div class="tiny muted">No completed seasons yet.</div>';
+  const nm=n=>n.replace(/'/g,"\\'");
+  showProfile(`
+    <h2>${t.name}${t.isMe?' <span class="tiny" style="color:var(--gold)">(you)</span>':''}</h2>
+    <div class="sub">${c.colours} · est. ${c.founded} · ${c.ground}</div>
+    <div class="quote">${c.lore}<br><i class="muted">"${c.motto}"</i></div>
+    <h4>This season</h4>
+    <div class="grid2">
+      <div class="kv">Position <b>${ord(pos)} of ${G.teams.length}</b></div>
+      <div class="kv">Points <b>${t.pts}</b></div>
+      <div class="kv">Record <b>${t.w}W ${t.d}D ${t.l}L</b></div>
+      <div class="kv">Goals <b>${t.gf} for · ${t.ga} against</b></div>
+    </div>
+    <h4>Squad</h4>
+    ${t.squad.map(p=>`<div class="staff-row"><span><span class="pos ${p.position}">${p.position}</span> <span class="link" onclick="openPlayer('${p.id}')">${p.first} ${p.last}</span>${p.isStar?' ⭐':''}</span><span class="tiny muted">${p.persona}</span></div>`).join('')}
+    <h4>Backroom staff</h4>
+    ${STAFF_ROLES.map(r=>`<div class="staff-row"><span>${r.icon} <span class="link" onclick="openStaff('${r.key}','${nm(t.name)}')">${t.staff[r.key].name}</span> <span class="tiny muted">— ${r.label}</span></span></div>`).join('')}
+    <h4>History${titles?` · ${titles} title${titles>1?'s':''} 🏆`:''}</h4>${hist}`);
+}
+
+/* ---------- rival scouting ---------- */
+function scoutOpposition(){
+  const fx=myFixture();
+  if(!fx||G.dossierWeek===G.week) return;
+  const opp=teamByName(fx[0]===G.myName?fx[1]:fx[0]);
+  opp.squad.forEach(p=>bump(p,'knowledge',18));
+  G.dossierWeek=G.week;
+  const star=opp.squad.find(p=>p.isStar);
+  const quickest=opp.squad.slice().sort((a,b)=>b.perceived.pace.val-a.perceived.pace.val)[0];
+  setSoap(`<strong>🕵️ Dossier on ${opp.name}</strong><br>Their star is <b>${pn(star)}</b> (${star.persona}). Quickest looks like ${quickest.last}: ${label('pace',quickest.perceived.pace.val)}.`);
+  pushFeed(`Scouted ${opp.name} — their star is ${star.last}.`);
+  save(); renderAll();
+}
+
+/* ---------- transfer window ---------- */
+function priceOf(p){return clamp(Math.round(((p._skill+p._pace)/2-40)*1.2),5,80);}
+/* one free agent per position, so a gap in the squad can always be filled */
+function makeMarket(){
+  return POSITIONS.map(pos=>{
+    const p=makePlayer(pos); p.knowledge=RNG.int(5,25); recompute(p); p.price=priceOf(p); return p;
+  });
+}
+function openTransferWindow(){
+  if(G.marketSeason!==G.season){G.market=makeMarket();G.marketSeason=G.season;}
+  const full=G.squad.length>=SQUAD_SIZE;
+  const sign=G.market.map(p=>`
+    <div class="staff-row" style="align-items:flex-start">
+      <div style="flex:1"><span class="pos ${p.position}">${p.position}</span> <b>${p.first} ${p.last}</b>
+        <span class="tiny muted">· age ${p.age} · ${p.persona}</span>
+        ${pstat(p,'pace','Pace')}${pstat(p,'skill','Skill')}</div>
+      <button class="btn sm" style="margin-left:10px" onclick="signPlayer('${p.id}')" ${G.budget<p.price||full?'disabled':''}>Sign £${p.price}k</button>
+    </div>`).join('') || '<div class="tiny muted">No free agents left this window.</div>';
+  const squad=G.squad.map(p=>`
+    <div class="staff-row"><span><span class="pos ${p.position}">${p.position}</span> ${p.first} ${p.last}
+      <span class="tiny muted">· ${p.persona}</span></span>
+      <button class="btn ghost sm" onclick="releasePlayer('${p.id}')">Release</button></div>`).join('');
+  showProfile(`
+    <h2>🔁 Transfer Window</h2>
+    <div class="sub">Budget <b>£${G.budget}k</b> · Squad ${G.squad.length}/${SQUAD_SIZE} · Free agents are fuzzy until you've scouted them.</div>
+    <h4>Free agents</h4>${sign}
+    <h4>Your squad</h4>${squad}
+    <div class="tiny muted" style="margin-top:12px">Releasing is final and free. ${COVER_MSG}</div>
+    <div class="row"><button class="btn" onclick="nextSeason()">➡️ Start Season ${G.season+1}</button></div>`);
+}
+function signPlayer(id){
+  const p=G.market.find(x=>x.id===id);
+  if(!p) return;
+  if(G.budget<p.price){toast(`Can't afford ${p.last} (£${p.price}k).`);return;}
+  if(G.squad.length>=SQUAD_SIZE){toast("Squad's full. Release someone first.");return;}
+  G.budget-=p.price;
+  G.market=G.market.filter(x=>x.id!==id);
+  G.squad.push(p);
+  ensureBonds(G.squad);
+  markStars(teamByName(G.myName));ratingsFor(teamByName(G.myName));
+  pushFeed(`✍️ Signed ${pn(p)} from the free market for £${p.price}k.`);
+  save(); renderAll(); openTransferWindow();
+}
+function releasePlayer(id){
+  const i=G.squad.findIndex(p=>p.id===id);
+  if(i<0) return;
+  if(!canSpare(G.squad,G.squad[i])){toast(COVER_MSG);return;}
+  if(!confirm(`Release ${pn(G.squad[i])}? This can't be undone.`)) return;
+  const [p]=G.squad.splice(i,1);
+  markStars(teamByName(G.myName));ratingsFor(teamByName(G.myName));
+  autoBenchUnavailable();
+  pushFeed(`🚪 Released ${pn(p)}.`);
+  save(); renderAll(); openTransferWindow();
+}
+
+/* ---------- helpers ---------- */
+function setSoap(html){const s=document.getElementById('soap');s.className='soap';s.innerHTML=html;}
+function pushFeed(txt){G.feed.unshift(`<span class="muted">W${G.week+1}:</span> ${txt}`);}
+function stripTags(h){return h.replace(/<[^>]+>/g,'');}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function ord(n){const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2200);}
+let modalEl=null;
+function showModal(html){closeModal();modalEl=document.createElement('div');modalEl.className='modal-bg';
+  modalEl.innerHTML=`<div class="modal">${html}</div>`;document.body.appendChild(modalEl);}
+function closeModal(){if(modalEl){modalEl.remove();modalEl=null;}}
+function openNewGame(){showModal(`<div class="trophy">🆕</div><h2>New Game?</h2>
+  <p class="muted">This wipes your current save and generates a fresh league, squad, staff and mystery players.</p>
+  <div class="row"><button class="btn danger" onclick="closeModal();localStorage.removeItem('super6s');newGame()">Start Fresh</button>
+  <button class="btn ghost" onclick="closeModal()">Cancel</button></div>`);}
+
+/* ---------- persistence ---------- */
+function save(){try{localStorage.setItem('super6s',JSON.stringify(G));}catch(e){}}
+function load(){
+  try{const raw=localStorage.getItem('super6s');if(!raw)return false;
+    G=JSON.parse(raw);
+    if(G.v!==SAVE_VERSION) return false;   // older save (different positions/squad size): start fresh
+    G.squad=G.teams.find(t=>t.isMe).squad;
+    if(!G.teams[0].club||G.teams[0].squad[0].age===undefined)return false; // pre-profile save: start fresh
+    G.hand=(G.hand||[]).map(c=>{const t=CARD_BY_KEY[c.key];return t?{...t,uid:c.uid,spent:!!c.spent,locked:!!c.locked}:null;}).filter(Boolean);
+    if(G.hand.length>CARDS_PER_WEEK) G.hand=G.hand.filter(c=>c.spent).concat(G.hand.filter(c=>!c.spent)).slice(0,CARDS_PER_WEEK);
+    G.pendingStory=null;
+    G.budget??=60; G.market??=[]; G.marketSeason??=0; G.dossierWeek??=-1;
+    G.teams.forEach(t=>t.squad.forEach(ensureRel));
+    G.relCooldown??=0;
+    ensureBonds(G.squad);
+    return true;
+  }catch(e){return false;}
+}
+
+window.onload=()=>{
+  if(load()){ renderAll();
+    setSoap(`<strong>↩️ Save loaded.</strong> Back at it with ${G.myName}, Season ${G.season}, Week ${G.week+1}.`);
+  } else newGame();
+};
+</script>
+</body>
+</html>
